@@ -1,17 +1,17 @@
-#include "linux/err.h"
-#include "linux/fs.h"
+#include <linux/err.h>
+#include <linux/fs.h>
 #include <linux/device.h>
 #include <linux/kdev_t.h>
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/cdev.h>
 
+static dev_t dev_num; // major and minor numbers
+static int dev_minor_count = 1; // number of devices under class
 static struct class *my_classp;
 static struct device *my_devicep;
-static dev_t dev_num; // unsigned int
-static int dev_minor_count = 1; // number of devices under class
+static struct file_operations fops = { /* TODO: Define operations */ };
 static struct cdev my_cdev;
-static struct file_operations fops = {};
 
 static __init int my_init(void)
 {
@@ -33,7 +33,7 @@ static __init int my_init(void)
     goto fail_class_create;
   }
 
-  // Bind class and major/minor numbers
+  // Create device struct -- representation of actual device and create device file in /dev
   my_devicep = device_create(my_classp, NULL, dev_num, NULL, "word_keeper"); 
   if (IS_ERR(my_devicep))
   {
@@ -42,7 +42,7 @@ static __init int my_init(void)
     goto fail_dev_create;
   }
   
-  // Bind fops and major/minor numbers
+  // Creates cdev struct -- used to connect fops to major/minor
   cdev_init(&my_cdev, &fops);
   result = cdev_add(&my_cdev, dev_num, dev_minor_count);
   if (result < 0)
