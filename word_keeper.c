@@ -6,17 +6,19 @@
 #include <linux/module.h>
 #include <linux/cdev.h>
 
+static const int dev_minor_count = 1; // number of devices under class
+static const struct file_operations fops = { /* TODO: Define operations */ };
+
 static dev_t dev_num; // major and minor numbers
-static int dev_minor_count = 1; // number of devices under class
 static struct class *my_classp;
 static struct device *my_devicep;
-static struct file_operations fops = { /* TODO: Define operations */ };
 static struct cdev my_cdev;
 
 static __init int my_init(void)
 {
   int result;
-  // Allocate major and minor number for device found in /proc/devices
+
+  // Allocate major and minor number for device in /proc/devices
   result = alloc_chrdev_region(&dev_num, 0, dev_minor_count, "word_keeper"); 
   if (result < 0)
   {
@@ -24,7 +26,7 @@ static __init int my_init(void)
     goto fail_alloc;
   }
 
-  // Create class found in /sys/class
+  // Create class in /sys/class
   my_classp = class_create("word_keeper_class"); 
   if (IS_ERR(my_classp))
   {
@@ -33,7 +35,11 @@ static __init int my_init(void)
     goto fail_class_create;
   }
 
-  // Create device struct -- representation of actual device and create device file in /dev
+  /* 
+   * Create device struct -- representation of actual device 
+   * Add device struct to a kernel internal registry -- binded to major index
+   * Create and bind inert device file in /dev to major/minor  
+  */
   my_devicep = device_create(my_classp, NULL, dev_num, NULL, "word_keeper"); 
   if (IS_ERR(my_devicep))
   {
@@ -42,7 +48,10 @@ static __init int my_init(void)
     goto fail_dev_create;
   }
   
-  // Creates cdev struct -- used to connect fops to major/minor
+  /* 
+   * Initialize cdev struct -- used to connect fops to device file using majors
+   * Add cdev struct to a kernel internal registry -- binded to major index 
+  */
   cdev_init(&my_cdev, &fops);
   result = cdev_add(&my_cdev, dev_num, dev_minor_count);
   if (result < 0)
@@ -73,6 +82,7 @@ static void __exit my_exit(void)
   device_destroy(my_classp, dev_num);
   class_destroy(my_classp);
   unregister_chrdev_region(dev_num, 1);
+
   pr_info("word_keeper - Module unloaded\n");
 }
 
