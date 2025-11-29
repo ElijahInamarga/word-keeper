@@ -20,6 +20,7 @@ static dev_t dev_num; // major and minor numbers
 static struct class *my_classp;
 static struct device *my_devicep;
 static struct cdev my_cdev;
+struct dev_data *wk_datap;
 
 static __init int my_init(void)
 {
@@ -54,6 +55,18 @@ static __init int my_init(void)
     pr_warn("word_keeper - failed to create device with error %d\n", result);
     goto fail_dev_create;
   }
+
+  // Allocate space to dev data
+  wk_datap = kzalloc(sizeof(struct dev_data),GFP_KERNEL);
+  if(!wk_datap)
+  {
+    result = -ENOMEM;
+    goto fail_kzalloc;
+  }
+
+  const char initial_str[] = "Hello, world!";
+  strncpy(wk_datap->buf, initial_str, min(sizeof(initial_str), sizeof(wk_datap->buf) - 1));
+  wk_datap->buf[sizeof(wk_datap->buf) - 1] = '\0';
   
   /* 
    * Initialize cdev struct -- used to connect fops to device file using majors
@@ -67,16 +80,14 @@ static __init int my_init(void)
     goto fail_cdev_add;
   }
   
-  // Initialize dev data
-  struct dev_data *wk_datap = kzalloc(sizeof(struct dev_data),GFP_KERNEL);
-  const char initial_str[] = "Hello, world!";
-  strncpy(wk_datap->buf, initial_str, min(sizeof(initial_str), sizeof(wk_datap->buf) - 1));
-  wk_datap->buf[sizeof(wk_datap->buf) - 1] = '\0';
 
   pr_info("word_keeper - Module successfully loaded\n");
   return 0;
 
 fail_cdev_add:
+  kfree(wk_datap);
+
+fail_kzalloc:
   device_destroy(my_classp, dev_num);
 
 fail_dev_create:
