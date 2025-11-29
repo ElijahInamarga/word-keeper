@@ -6,8 +6,14 @@
 #include <linux/module.h>
 #include <linux/cdev.h>
 
+#include "keeper_dev.h"
+
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("Elijah Inamarga");
+MODULE_DESCRIPTION("A driver that reads and writes to a device");
+
 static const int dev_minor_count = 1; // number of devices under class
-static const struct file_operations fops = { /* TODO: Define operations */ };
+static const struct file_operations fops = { .read = my_read };
 
 static dev_t dev_num; // major and minor numbers
 static struct class *my_classp;
@@ -88,7 +94,3 @@ static void __exit my_exit(void)
 
 module_init(my_init);
 module_exit(my_exit);
-
-MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Elijah Inamarga");
-MODULE_DESCRIPTION("A driver that reads and writes to a device");
