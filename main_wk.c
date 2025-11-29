@@ -5,7 +5,6 @@
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/cdev.h>
-#include <string.h>
 
 #include "keeper_dev.h"
 
@@ -58,7 +57,7 @@ static __init int my_init(void)
 
   // Allocate space to dev data
   wk_datap = kzalloc(sizeof(struct dev_data),GFP_KERNEL);
-  if(!wk_datap)
+  if(wk_datap == NULL)
   {
     result = -ENOMEM;
     goto fail_kzalloc;
@@ -67,6 +66,9 @@ static __init int my_init(void)
   const char initial_str[] = "Hello, world!";
   strncpy(wk_datap->buf, initial_str, min(sizeof(initial_str), sizeof(wk_datap->buf) - 1));
   wk_datap->buf[sizeof(wk_datap->buf) - 1] = '\0';
+
+  // Attach dev data to device
+  dev_set_drvdata(my_devicep, wk_datap);
   
   /* 
    * Initialize cdev struct -- used to connect fops to device file using majors
@@ -80,7 +82,6 @@ static __init int my_init(void)
     goto fail_cdev_add;
   }
   
-
   pr_info("word_keeper - Module successfully loaded\n");
   return 0;
 
