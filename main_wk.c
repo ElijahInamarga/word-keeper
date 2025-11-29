@@ -5,6 +5,7 @@
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/cdev.h>
+#include <string.h>
 
 #include "keeper_dev.h"
 
@@ -65,6 +66,12 @@ static __init int my_init(void)
     pr_warn("word_keeper - failed to add device with error %d\n", result);
     goto fail_cdev_add;
   }
+  
+  // Initialize dev data
+  struct dev_data *wk_datap = kzalloc(sizeof(struct dev_data),GFP_KERNEL);
+  const char initial_str[] = "Hello, world!";
+  strncpy(wk_datap->buf, initial_str, min(sizeof(initial_str), sizeof(wk_datap->buf) - 1));
+  wk_datap->buf[sizeof(wk_datap->buf) - 1] = '\0';
 
   pr_info("word_keeper - Module successfully loaded\n");
   return 0;
