@@ -12,16 +12,16 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Elijah Inamarga");
 MODULE_DESCRIPTION("A driver that reads and writes to a device");
 
-static const int dev_minor_count = 1; // number of devices under class
+static const int                    dev_minor_count = 1; // number of devices under class
 static const struct file_operations fops = {.owner = THIS_MODULE,
                                             .open = my_open,
                                             .release = my_release,
                                             .read = my_read};
 
-static dev_t dev_num; // major and minor numbers
-static struct class *my_classp;
+static dev_t          dev_num; // major and minor numbers
+static struct class  *my_classp;
 static struct device *my_devicep;
-struct dev_data *wk_datap;
+struct dev_data      *wk_datap;
 
 static __init int my_init(void)
 {
@@ -29,17 +29,14 @@ static __init int my_init(void)
 
   // Allocate major and minor number for device in /proc/devices
   result = alloc_chrdev_region(&dev_num, 0, dev_minor_count, "word_keeper");
-  if (result < 0)
-  {
-    pr_warn("word_keeper - fail to allocate major/minor number with error %d\n",
-            result);
+  if(result < 0) {
+    pr_warn("word_keeper - fail to allocate major/minor number with error %d\n", result);
     goto fail_alloc;
   }
 
   // Create class in /sys/class
   my_classp = class_create("word_keeper_class");
-  if (IS_ERR(my_classp))
-  {
+  if(IS_ERR(my_classp)) {
     result = PTR_ERR(my_classp);
     pr_warn("word_keeper - failed to create class with error %d\n", result);
     goto fail_class_create;
@@ -51,8 +48,7 @@ static __init int my_init(void)
    * Create and bind inert device file in /dev to major/minor
    */
   my_devicep = device_create(my_classp, NULL, dev_num, NULL, "word_keeper");
-  if (IS_ERR(my_devicep))
-  {
+  if(IS_ERR(my_devicep)) {
     result = PTR_ERR(my_devicep);
     pr_warn("word_keeper - failed to create device with error %d\n", result);
     goto fail_dev_create;
@@ -60,15 +56,13 @@ static __init int my_init(void)
 
   // Allocate space to dev data
   wk_datap = kzalloc(sizeof(struct dev_data), GFP_KERNEL);
-  if (wk_datap == NULL)
-  {
+  if(wk_datap == NULL) {
     result = -ENOMEM;
     goto fail_kzalloc;
   }
 
   const char initial_str[] = "Hello, world!\n";
-  strncpy(wk_datap->buf, initial_str,
-          min(sizeof(initial_str), sizeof(wk_datap->buf) - 1));
+  strncpy(wk_datap->buf, initial_str, min(sizeof(initial_str), sizeof(wk_datap->buf) - 1));
 
   wk_datap->buf[sizeof(wk_datap->buf) - 1] = '\0';
 
@@ -81,8 +75,7 @@ static __init int my_init(void)
    */
   cdev_init(&wk_datap->cdev, &fops);
   result = cdev_add(&wk_datap->cdev, dev_num, dev_minor_count);
-  if (result < 0)
-  {
+  if(result < 0) {
     pr_warn("word_keeper - failed to add device with error %d\n", result);
     goto fail_cdev_add;
   }
