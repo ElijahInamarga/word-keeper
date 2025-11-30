@@ -10,6 +10,7 @@ struct dev_data
   char buf[BUFF_SIZE];
 };
 
-ssize_t my_read(struct file *filp, char __user *user_buf, size_t len, loff_t *offset);
+ssize_t my_read(struct file *filp, char __user *user_buf, size_t len,
+                loff_t *offset);
 
-#endif // !KEEPER_DEV_H
+#endif // KEEPER_DEV_H
