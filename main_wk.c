@@ -16,7 +16,8 @@ static const int                    dev_minor_count = 1; // number of devices un
 static const struct file_operations fops = {.owner = THIS_MODULE,
                                             .open = my_open,
                                             .release = my_release,
-                                            .read = my_read};
+                                            .read = my_read,
+                                            .write = my_write};
 
 static dev_t          dev_num; // major and minor numbers
 static struct class  *my_classp;
@@ -61,8 +62,8 @@ static __init int my_init(void)
     goto fail_kzalloc;
   }
 
-  const char initial_str[] = "Hello, world!\n";
-  strncpy(wk_datap->buf, initial_str, min(sizeof(initial_str), sizeof(wk_datap->buf) - 1));
+  // const char initial_str[] = "Hello, world!\n";
+  // strncpy(wk_datap->buf, initial_str, min(sizeof(initial_str), sizeof(wk_datap->buf) - 1));
 
   wk_datap->buf[sizeof(wk_datap->buf) - 1] = '\0';
 

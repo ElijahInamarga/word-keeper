@@ -58,6 +58,10 @@ ssize_t my_write(struct file *filep, const char __user *user_bufp, size_t len, l
     return -ENODEV;
   }
 
+  if(*offsetp >= sizeof(wk_datap->buf) - 1) {
+    return -ENOSPC;
+  }
+
   size_t buf_remaining_space = sizeof(wk_datap->buf) - *offsetp - 1;
   size_t bytes_to_write = min(buf_remaining_space, len);
 
