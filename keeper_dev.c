@@ -1,6 +1,7 @@
 #include "keeper_dev.h"
 #include "asm-generic/errno-base.h"
 #include "linux/container_of.h"
+#include "linux/init.h"
 #include "linux/uaccess.h"
 #include <linux/kernel.h>
 
@@ -17,6 +18,12 @@ int my_open(struct inode *inodep, struct file *filep)
     return -ENODEV; // open unsuccessful
   }
 
+  return 0;
+}
+
+int my_release(struct inode *inodep, struct file *filep)
+{
+  module_put(THIS_MODULE);
   return 0;
 }
 

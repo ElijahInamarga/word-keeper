@@ -1,9 +1,9 @@
 #ifndef KEEPER_DEV_H
 #define KEEPER_DEV_H
 
-#include <linux/fs.h>
-#include <linux/device.h>
 #include <linux/cdev.h>
+#include <linux/device.h>
+#include <linux/fs.h>
 
 #define BUFF_SIZE 64
 
@@ -14,6 +14,7 @@ struct dev_data
 };
 
 int my_open(struct inode *inodep, struct file *filep);
+int my_release(struct inode *inodep, struct file *filep);
 ssize_t my_read(struct file *filep, char __user *user_bufp, size_t len,
                 loff_t *offsetp);
 

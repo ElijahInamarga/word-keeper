@@ -13,7 +13,10 @@ MODULE_AUTHOR("Elijah Inamarga");
 MODULE_DESCRIPTION("A driver that reads and writes to a device");
 
 static const int dev_minor_count = 1; // number of devices under class
-static const struct file_operations fops = {.read = my_read};
+static const struct file_operations fops = {.owner = THIS_MODULE,
+                                            .open = my_open,
+                                            .release = my_release,
+                                            .read = my_read};
 
 static dev_t dev_num; // major and minor numbers
 static struct class *my_classp;
