@@ -39,10 +39,6 @@ ssize_t my_read(struct file *filep, char __user *user_bufp, size_t len, loff_t *
     return 0;
   }
 
-  /*
-   * Only read the amount of bytes stated by user
-   * unless there aren't enough bytes to read
-   */
   size_t bytes_unread = buf_data_len - *offsetp;
   size_t bytes_to_read = min(bytes_unread, len);
 
@@ -53,4 +49,25 @@ ssize_t my_read(struct file *filep, char __user *user_bufp, size_t len, loff_t *
   *offsetp += bytes_to_read;
 
   return bytes_to_read;
+}
+
+ssize_t my_write(struct file *filep, const char __user *user_bufp, size_t len, loff_t *offsetp)
+{
+  struct dev_data *wk_datap = (struct dev_data *)filep->private_data;
+  if(wk_datap == NULL) {
+    return -ENODEV;
+  }
+
+  size_t buf_remaining_space = sizeof(wk_datap->buf) - *offsetp - 1;
+  size_t bytes_to_write = min(buf_remaining_space, len);
+
+  if(copy_from_user(wk_datap->buf + *offsetp, user_bufp, bytes_to_write) != 0) {
+    return -EFAULT;
+  }
+
+  *offsetp += bytes_to_write;
+
+  wk_datap->buf[*offsetp] = '\0';
+
+  return bytes_to_write;
 }
