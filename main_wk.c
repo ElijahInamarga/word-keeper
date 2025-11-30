@@ -18,7 +18,6 @@ static const struct file_operations fops = {.read = my_read};
 static dev_t dev_num; // major and minor numbers
 static struct class *my_classp;
 static struct device *my_devicep;
-static struct cdev my_cdev;
 struct dev_data *wk_datap;
 
 static __init int my_init(void)
@@ -76,8 +75,8 @@ static __init int my_init(void)
    * Initialize cdev struct -- used to connect fops to device file using majors
    * Add cdev struct to a kernel internal registry -- binded to major index
    */
-  cdev_init(&my_cdev, &fops);
-  result = cdev_add(&my_cdev, dev_num, dev_minor_count);
+  cdev_init(&wk_datap->cdev, &fops);
+  result = cdev_add(&wk_datap->cdev, dev_num, dev_minor_count);
   if (result < 0)
   {
     pr_warn("word_keeper - failed to add device with error %d\n", result);
@@ -105,7 +104,7 @@ fail_alloc:
 
 static void __exit my_exit(void)
 {
-  cdev_del(&my_cdev);
+  cdev_del(&wk_datap->cdev);
   device_destroy(my_classp, dev_num);
   class_destroy(my_classp);
   unregister_chrdev_region(dev_num, 1);
