@@ -62,9 +62,6 @@ static __init int my_init(void)
     goto fail_kzalloc;
   }
 
-  // const char initial_str[] = "Hello, world!\n";
-  // strncpy(wk_datap->buf, initial_str, min(sizeof(initial_str), sizeof(wk_datap->buf) - 1));
-
   wk_datap->buf[sizeof(wk_datap->buf) - 1] = '\0';
 
   // Attach dev data to device
