@@ -31,7 +31,7 @@ static __init int my_init(void)
   // Allocate major and minor number for device in /proc/devices
   result = alloc_chrdev_region(&dev_num, 0, dev_minor_count, "word_keeper");
   if(result < 0) {
-    pr_warn("word_keeper - fail to allocate major/minor number with error %d\n", result);
+    pr_warn("word_keeper - Failed to allocate major/minor number with error %d\n", result);
     goto fail_alloc;
   }
 
@@ -39,7 +39,7 @@ static __init int my_init(void)
   my_classp = class_create("word_keeper_class");
   if(IS_ERR(my_classp)) {
     result = PTR_ERR(my_classp);
-    pr_warn("word_keeper - failed to create class with error %d\n", result);
+    pr_warn("word_keeper - Failed to create class with error %d\n", result);
     goto fail_class_create;
   }
 
@@ -51,7 +51,7 @@ static __init int my_init(void)
   my_devicep = device_create(my_classp, NULL, dev_num, NULL, "word_keeper");
   if(IS_ERR(my_devicep)) {
     result = PTR_ERR(my_devicep);
-    pr_warn("word_keeper - failed to create device with error %d\n", result);
+    pr_warn("word_keeper - Failed to create device with error %d\n", result);
     goto fail_dev_create;
   }
 
@@ -74,7 +74,7 @@ static __init int my_init(void)
   cdev_init(&wk_datap->cdev, &fops);
   result = cdev_add(&wk_datap->cdev, dev_num, dev_minor_count);
   if(result < 0) {
-    pr_warn("word_keeper - failed to add device with error %d\n", result);
+    pr_warn("word_keeper - Failed to add device with error %d\n", result);
     goto fail_cdev_add;
   }
 
