@@ -1,10 +1,10 @@
 #ifndef KEEPER_DEV_H
 #define KEEPER_DEV_H
 
-#include <linux/types.h>
 #include <linux/cdev.h>
 #include <linux/device.h>
 #include <linux/fs.h>
+#include <linux/types.h>
 
 #define BUFF_SIZE 64
 
