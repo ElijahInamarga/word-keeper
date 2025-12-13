@@ -55,9 +55,7 @@ static __init int my_init(void)
         result = -ENOMEM;
         goto fail_kzalloc;
     }
-
     wk_datap->buf[sizeof(wk_datap->buf) - 1] = '\0';
-
     dev_set_drvdata(my_devicep, wk_datap);
 
     cdev_init(&wk_datap->cdev, &fops);
