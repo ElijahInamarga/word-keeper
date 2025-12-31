@@ -45,7 +45,8 @@ ssize_t my_read(struct file *filep, char __user *user_bufp, size_t len,
     size_t bytes_unread = buf_data_len - wk_datap->buf_read_idx;
     size_t bytes_to_read = min(bytes_unread, len);
 
-    if(copy_to_user(user_bufp, wk_datap->buf + wk_datap->buf_read_idx, bytes_to_read) != 0) {
+    if(copy_to_user(user_bufp, wk_datap->buf + wk_datap->buf_read_idx,
+                    bytes_to_read) != 0) {
         return -EFAULT;
     }
 
@@ -66,11 +67,12 @@ ssize_t my_write(struct file *filep, const char __user *user_bufp, size_t len,
         return -ENOSPC;
     }
 
-    size_t buf_remaining_space = sizeof(wk_datap->buf) - wk_datap->buf_write_idx - 1;
+    size_t buf_remaining_space =
+        sizeof(wk_datap->buf) - wk_datap->buf_write_idx - 1;
     size_t bytes_to_write = min(buf_remaining_space, len);
 
-    if(copy_from_user(wk_datap->buf + wk_datap->buf_write_idx, user_bufp, bytes_to_write) !=
-       0) {
+    if(copy_from_user(wk_datap->buf + wk_datap->buf_write_idx, user_bufp,
+                      bytes_to_write) != 0) {
         return -EFAULT;
     }
 

@@ -6,7 +6,7 @@
 #include <linux/fs.h>
 #include <linux/types.h>
 
-#define BUFF_SIZE 64
+#define BUFF_SIZE 256
 
 struct dev_data {
     struct cdev cdev;
