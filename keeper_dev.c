@@ -37,19 +37,19 @@ ssize_t my_read(struct file *filep, char __user *user_bufp, size_t len,
 
     size_t buf_data_len = strnlen(wk_datap->buf, sizeof(wk_datap->buf));
 
-    if(*offsetp >= buf_data_len) // end of file
+    if(wk_datap->buf_read_idx >= buf_data_len) // end of file
     {
         return 0;
     }
 
-    size_t bytes_unread = buf_data_len - *offsetp;
+    size_t bytes_unread = buf_data_len - wk_datap->buf_read_idx;
     size_t bytes_to_read = min(bytes_unread, len);
 
-    if(copy_to_user(user_bufp, wk_datap->buf + *offsetp, bytes_to_read) != 0) {
+    if(copy_to_user(user_bufp, wk_datap->buf + wk_datap->buf_read_idx, bytes_to_read) != 0) {
         return -EFAULT;
     }
 
-    *offsetp += bytes_to_read;
+    wk_datap->buf_read_idx += bytes_to_read;
 
     return bytes_to_read;
 }
@@ -62,21 +62,21 @@ ssize_t my_write(struct file *filep, const char __user *user_bufp, size_t len,
         return -ENODEV;
     }
 
-    if(*offsetp >= sizeof(wk_datap->buf) - 1) {
+    if(wk_datap->buf_write_idx >= sizeof(wk_datap->buf) - 1) {
         return -ENOSPC;
     }
 
-    size_t buf_remaining_space = sizeof(wk_datap->buf) - *offsetp - 1;
+    size_t buf_remaining_space = sizeof(wk_datap->buf) - wk_datap->buf_write_idx - 1;
     size_t bytes_to_write = min(buf_remaining_space, len);
 
-    if(copy_from_user(wk_datap->buf + *offsetp, user_bufp, bytes_to_write) !=
+    if(copy_from_user(wk_datap->buf + wk_datap->buf_write_idx, user_bufp, bytes_to_write) !=
        0) {
         return -EFAULT;
     }
 
-    *offsetp += bytes_to_write;
+    wk_datap->buf_write_idx += bytes_to_write;
 
-    wk_datap->buf[*offsetp] = '\0';
+    wk_datap->buf[wk_datap->buf_write_idx] = '\0';
 
     return bytes_to_write;
 }

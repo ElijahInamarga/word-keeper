@@ -11,6 +11,8 @@
 struct dev_data {
     struct cdev cdev;
     char        buf[BUFF_SIZE];
+    size_t      buf_read_idx;
+    size_t      buf_write_idx;
 };
 
 int     my_open(struct inode *inodep, struct file *filep);
